@@ -1,4 +1,4 @@
-package controller.model;
+package model;
 
 public class Disk {
 
@@ -10,6 +10,16 @@ public class Disk {
 
     public Disk(int groupNumber){
         this.groupNumber = String.valueOf(groupNumber);
+    }
+    public Disk(int groupNumber,int trackNumber,int startPoint,int seekTime){
+        this.groupNumber = String.valueOf(groupNumber);
+        this.trackNumber = String.valueOf(trackNumber);
+        this.startPoint = String.valueOf(startPoint);
+        this.seekTime = String.valueOf(seekTime);
+        FCFS_sel = true;
+        SSTF_sel = true;
+        LOOK_sel = true;
+        C_SCAN_sel = true;
     }
 
     public String getSeekTime() { return seekTime; }

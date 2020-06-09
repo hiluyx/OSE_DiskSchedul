@@ -1,11 +1,11 @@
-package controller;
+package view;
 
-import controller.model.Disk;
+import controller.MainPaneController;
+import model.Disk;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
-import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -13,18 +13,21 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import utils.Alg;
-import utils.ThreadPool;
-import view.DiskScheduledViewer;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.*;
 
 public class MainPane extends BorderPane {
+    private static final String tipText =
+            "Tips：\n\t1. 鼠标左键单击一行选中，按住CTRL键+鼠标左键多选，CTRL+A全选。" +
+            "\n\t2. 数据输入时，双击显示输入栏，回车确认，单击勾选或取消算法选择。" +
+            "\n\t3. new按键新添一行。" +
+            "\n\t4. clear按键清除所有行。" +
+            "\n\t5. delete按键删除选中的行。" +
+            "\n\t6. start按键模拟选中的行。";
     private static final AnchorPane anchorPane = new AnchorPane();
     private static final GridPane gridPane = new GridPane();
     public static  Stage primaryStage;
@@ -34,15 +37,30 @@ public class MainPane extends BorderPane {
 
     public MainPane(){
         initTableView();
+
+        Disk firstDisk = new Disk(0,100,20,100);
+        Disk secondDisk = new Disk(1,200,10,60);
+        Disk thirdDisk = new Disk(2,300,20,80);
+        disks.addAll(firstDisk,secondDisk,thirdDisk);
+        diskTableView.setItems(disks);
+
         Button addButton = initAddButton();
         Button clearButton = initClearButton();
         Button delButton = initDelButton();
         Button startButton = initStartButton();
+        Text text = initTipText();
         anchorPane.getChildren().addAll(gridPane,startButton,addButton,delButton,clearButton);
         super.setBottom(anchorPane);
+        super.setCenter(text);
         super.setTop(diskTableView);
     }
 
+    private static Text initTipText(){
+        Text text = new Text(tipText);
+        text.setFont(Font.font("Verdana", FontWeight.LIGHT, 17));
+        text.setLineSpacing(5);
+        return text;
+    }
     private static Button initClearButton(){
         Button button = new Button("clear");
         button.setMinWidth(200);
@@ -67,7 +85,6 @@ public class MainPane extends BorderPane {
         AnchorPane.setBottomAnchor(button,100.0);
         return button;
     }
-
     private static Button initDelButton(){
         Button button = new Button("delete");
         button.setMinWidth(200);
@@ -85,7 +102,7 @@ public class MainPane extends BorderPane {
     private static Button initStartButton(){
         Button button = new Button("start");
         button.setOnAction(event -> {
-            startAndCheck();
+            MainPaneController.startAndCheck(diskTableView);
         });
         AnchorPane.setTopAnchor(button,70.0);
         AnchorPane.setLeftAnchor(button,100.0);
@@ -93,7 +110,6 @@ public class MainPane extends BorderPane {
         AnchorPane.setBottomAnchor(button,40.0);
         return button;
     }
-
     private static void initTableView(){
 
         diskTableView.setEditable(true);
@@ -180,20 +196,19 @@ public class MainPane extends BorderPane {
         });
         setCells(C_SCAN_Col);
 
-        TableColumn<Disk,String> algSelectionCol = new TableColumn<>("Algorithm selection(算法选择)");
-        algSelectionCol.getColumns().addAll(FCFS_Col,SSTF_Col,LOOK_Col,C_SCAN_Col);
+        TableColumn<Disk,Boolean> algSelectionCol = new TableColumn<>("Algorithm selection(算法选择)");
+        algSelectionCol.getColumns().add(FCFS_Col);
+        algSelectionCol.getColumns().add(LOOK_Col);
+        algSelectionCol.getColumns().add(C_SCAN_Col);
+        algSelectionCol.getColumns().add(SSTF_Col);
+
         diskTableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-//        diskTableView.setRowFactory(tv->{
-//            TableRow<Disk> row = new TableRow<>();
-//            row.setOnMouseClicked(event -> {
-//                if (event.getClickCount() == 1){
-//                    Disk clickedDisk = row.getItem();
-//                    getDelDisks().add(clickedDisk);
-//                }
-//            });
-//            return row;
-//        });
-        diskTableView.getColumns().addAll(groupCol,trackNumberCol,initialHeadPositionCol,numberOfRequestsCol,algSelectionCol);
+
+        diskTableView.getColumns().add(groupCol);
+        diskTableView.getColumns().add(trackNumberCol);
+        diskTableView.getColumns().add(initialHeadPositionCol);
+        diskTableView.getColumns().add(numberOfRequestsCol);
+        diskTableView.getColumns().add(algSelectionCol);
     }
 
     private static void addDisk(){
@@ -201,7 +216,6 @@ public class MainPane extends BorderPane {
         disks.add(disk);
         diskTableView.setItems(disks);
     }
-
     private static void delDisks(){
         for (Disk disk : delDisks) System.out.println(disk.getGroupNumber());
         for (Disk disk : delDisks){
@@ -215,72 +229,7 @@ public class MainPane extends BorderPane {
         diskTableView.setItems(disks);
     }
 
-    private static void startAndCheck(){
-        List<Disk> wrongDisks = new ArrayList<>();
-        List<Disk> startDisks = diskTableView.getSelectionModel().getSelectedItems();
-        AtomicInteger number = new AtomicInteger(0);
-        synchronized (wrongDisks){
-            ThreadPool.execute(()->{
-                for (Disk disk : startDisks){
-                    ThreadPool.executeOnCachedThreadPool(() -> {
-                        number.getAndIncrement();
-                        System.out.println("number: " + number.intValue());
-                        try{
-                            int group = Integer.parseInt(disk.getGroupNumber());
-                            int startPoint = Integer.parseInt(disk.getStartPoint());
-                            int xUpperBound = Integer.parseInt(disk.getSeekTime());
-                            int yUpperBound = Integer.parseInt(disk.getTrackNumber());
-                            int seekTime = Integer.parseInt(disk.getSeekTime());
-                            Map<Alg.ALG_TYPES, XYChart.Series<Number,Number>> seriesMap = new HashMap<>();
-                            if (disk.isFCFS_sel()) seriesMap.put(Alg.ALG_TYPES.FCFS,null);
-                            if (disk.isC_SCAN_sel()) seriesMap.put(Alg.ALG_TYPES.C_SCAN,null);
-                            if (disk.isLOOK_sel()) seriesMap.put(Alg.ALG_TYPES.LOOK,null);
-                            if (disk.isSSTF_sel()) seriesMap.put(Alg.ALG_TYPES.SSTF,null);
-                            new DiskScheduledViewer(startPoint,xUpperBound,yUpperBound,seekTime,group,seriesMap);
-                        }catch (NumberFormatException exception){
-                            System.out.println("add " + disk.getGroupNumber());
-                            wrongDisks.add(disk);
-                        }
-                        synchronized (wrongDisks){
-                            if (number.intValue() == startDisks.size()){
-                                wrongDisks.notifyAll();
-                                System.out.println("FX notified");
-                            }
-                        }
-                    });
-                }
-            });
-        }
-        if (startDisks.size() > 0){
-            synchronized (wrongDisks){
-                try {
-                    System.out.println("FX waiting");
-                    wrongDisks.wait();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                if (wrongDisks.size() > 0){
-                    StringBuilder wrongString = new StringBuilder();
-                    wrongString.append("Groups: ");
-                    for (Disk wDisk : wrongDisks){
-                        wrongString.append(wDisk.getGroupNumber()).append(",");
-                    }
-                    wrongString.append(" is wrong!");
-                    Alert _alert = new Alert(Alert.AlertType.ERROR);
-                    _alert.setTitle("Start Failed!");
-                    _alert.setHeaderText("Data input wrong:");
-                    _alert.setContentText(String.valueOf(wrongString));
-                    _alert.showAndWait();
-                }
-            }
-        }else{
-            Alert _alert = new Alert(Alert.AlertType.ERROR);
-            _alert.setTitle("Start Failed!");
-            _alert.setHeaderText("Data input wrong:");
-            _alert.setContentText("There is not any data!");
-            _alert.showAndWait();
-        }
-    }
+
 
     private static void setCells(TableColumn<Disk,Boolean> tableColumn){
         tableColumn.setCellFactory(param -> {

@@ -1,4 +1,4 @@
-import controller.MainPane;
+import view.MainPane;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
@@ -9,11 +9,13 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+
         BorderPane root = new MainPane();
+
         root.setPadding(new Insets(20, 20, 0, 20));
         MainPane.primaryStage = primaryStage;
-        primaryStage.setTitle("disk scheduled");
-        primaryStage.setScene(new Scene(root, 970, 600));
+        primaryStage.setTitle("disk scheduled - by HiLuyx");
+        primaryStage.setScene(new Scene(root, 970, 750));
         primaryStage.setMinWidth(1000);
         primaryStage.setMinHeight(600);
         primaryStage.setResizable(false);
