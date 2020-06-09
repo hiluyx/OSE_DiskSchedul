@@ -136,6 +136,7 @@ public class Alg{
      */
     public static List<XYChart.Data<Number,Number>> LOOK_alg(List<XYChart.Data<Number,Number>> dataList, int startPoint){
         List<XYChart.Data<Number,Number>> processedList = SCAN_alg(dataList,startPoint,true);
+        System.out.println("LOOK" + processedList.size());
         setNodes(processedList, ALG_TYPES.LOOK.toString());
         return processedList;
     }
@@ -147,6 +148,7 @@ public class Alg{
      */
     public static List<XYChart.Data<Number,Number>> C_SCAN_alg(List<XYChart.Data<Number,Number>> dataList, int startPoint){
         List<XYChart.Data<Number,Number>> processedList = SCAN_alg(dataList,startPoint,false);
+        System.out.println("C_SCAN" + processedList.size());
         setNodes(processedList, ALG_TYPES.C_SCAN.toString());
         return processedList;
     }
@@ -168,7 +170,7 @@ public class Alg{
             }
         }
         if (TYPE){
-            for (int i = headIndex; i >= 0; i --){
+            for (int i = headIndex; i > 0; i --){
                 processedXYList.add(new XYChart.Data<>(processedXYList.size(),yList.get(i)));
             }
         }
