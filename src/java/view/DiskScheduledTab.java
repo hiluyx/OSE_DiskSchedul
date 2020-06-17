@@ -38,7 +38,7 @@ public class DiskScheduledTab extends Tab {
         this.yAxis = new NumberAxis(0,yUpperBound + 5,yUpperBound/10.0);
         this.XYLineChart = new LineChart<>(xAxis,yAxis);
 
-        dealSeries(startPoint, yUpperBound,seekTime,series);
+        dealSeries(startPoint, seekTime,yUpperBound,series);
 
         initScrollPane();
         super.closableProperty().set(false);
@@ -48,10 +48,10 @@ public class DiskScheduledTab extends Tab {
         this.setContent(scrollPane);
     }
 
-    private void dealSeries(int startPoint, int yUpperBound, int seekTime,
+    private void dealSeries(int startPoint, int seekTime,int yUpperBound,
                             Map<Alg.ALG_TYPES, XYChart.Series<Number, Number>> series) throws Exception {
         //生成随机数
-        List<XYChart.Data<Number, Number>> rawData = Alg.generate_RRData(startPoint, seekTime, yUpperBound);
+        List<XYChart.Data<Number, Number>> rawData = Alg.generate_RRData(startPoint, seekTime,yUpperBound);
         //处理数据
         if (series.size() == 0) throw new Exception("Group-" + group + ":  There was not any selection for alg");
         Set<Alg.ALG_TYPES> keySet = series.keySet();

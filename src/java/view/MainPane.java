@@ -38,10 +38,8 @@ public class MainPane extends BorderPane {
     public MainPane(){
         initTableView();
 
-        Disk firstDisk = new Disk(0,100,20,100);
-        Disk secondDisk = new Disk(1,200,10,60);
-        Disk thirdDisk = new Disk(2,300,20,80);
-        disks.addAll(firstDisk,secondDisk,thirdDisk);
+        Disk firstDisk = new Disk(0,1500,500,400);
+        disks.addAll(firstDisk);
         diskTableView.setItems(disks);
 
         Button addButton = initAddButton();

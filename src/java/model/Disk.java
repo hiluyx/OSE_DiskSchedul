@@ -3,9 +3,9 @@ package model;
 public class Disk {
 
     private String groupNumber;
-    private String trackNumber;
+    private String trackNumber = "1500";
     private String startPoint;
-    private String seekTime;
+    private String seekTime = "400";
     private boolean FCFS_sel,SSTF_sel,LOOK_sel,C_SCAN_sel;
 
     public Disk(int groupNumber){
