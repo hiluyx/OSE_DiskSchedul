@@ -1,5 +1,6 @@
 package controller;
 
+import javafx.collections.ObservableList;
 import model.Disk;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.TabPane;
@@ -10,6 +11,7 @@ import utils.ThreadPool;
 import view.DiskSchedulePane;
 import view.DiskScheduledTab;
 import view.ErrorDialog;
+import view.MainPane;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -81,6 +83,28 @@ public class MainPaneController {
         }else{
             ErrorDialog.getBlankDialog();
         }
+    }
+
+    public static void clearDiskLists(){
+        MainPane.getDelDisks().clear();
+        MainPane.getDisks().clear();
+        MainPane.getDiskTableView().getItems().clear();
+    }
+
+    public static ObservableList<Disk> addDisk(ObservableList<Disk> disks){
+        Disk disk = new Disk(disks.size());
+        disks.add(disk);
+        return disks;
+    }
+
+    public static ObservableList<Disk> delDisks(List<Disk> delDisks,ObservableList<Disk> disks){
+        for (Disk disk : delDisks){
+            int delPos = Integer.parseInt(disk.getGroupNumber());
+            disks.remove(disk);
+            for (int i = delPos;i < disks.size();i ++) disks.get(i).setGroupNumber(String.valueOf(i));
+        }
+        delDisks.clear();
+        return disks;
     }
 
 }

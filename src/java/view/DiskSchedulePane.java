@@ -16,9 +16,9 @@ import javafx.stage.Stage;
 
 
 public class DiskSchedulePane {
-    private static final String tip = "Tips: \n\t1. 鼠标左键双击折线图，退出或进入全屏" +
-            "\n\t2. 悬停折线图的点，获得详细坐标" +
-            "\n\t3. 鼠标左键单击缩小，右键单击放大";
+    private static final String tip = "Tips: \n\t1. 鼠标左键双击折线图，退出或进入全屏。" +
+            "\n\t2. 悬停折线图的点，获得详细坐标。" +
+            "\n\t3. 鼠标左键单击缩小，右键单击放大。";
     private static final Text calText = new Text();
 
     public DiskSchedulePane(Stage viewer, TabPane tabPane){

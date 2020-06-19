@@ -33,7 +33,7 @@ public class MainPane extends BorderPane {
     public static  Stage primaryStage;
     private static final ObservableList<Disk> disks = FXCollections.observableArrayList();
     private static final TableView<Disk> diskTableView = new TableView<>();
-    private static List<Disk> delDisks = new ArrayList<>();
+    private static final List<Disk> delDisks = new ArrayList<>();
 
     public MainPane(){
         initTableView();
@@ -62,11 +62,7 @@ public class MainPane extends BorderPane {
     private static Button initClearButton(){
         Button button = new Button("clear");
         button.setMinWidth(200);
-        button.setOnAction(event -> {
-            delDisks.clear();
-            disks.clear();
-            diskTableView.getItems().clear();
-        });
+        button.setOnAction(event -> MainPaneController.clearDiskLists());
         AnchorPane.setTopAnchor(button,10.0);
         AnchorPane.setLeftAnchor(button,350.0);
         AnchorPane.setRightAnchor(button,350.0);
@@ -76,7 +72,7 @@ public class MainPane extends BorderPane {
     private static Button initAddButton(){
         Button button = new Button("new");
         button.setMinWidth(200);
-        button.setOnAction(event -> addDisk());
+        button.setOnAction(event -> diskTableView.setItems(MainPaneController.addDisk(disks)));
         AnchorPane.setTopAnchor(button,10.0);
         AnchorPane.setLeftAnchor(button,100.0);
 //        AnchorPane.setRightAnchor(button,500.0);
@@ -89,10 +85,9 @@ public class MainPane extends BorderPane {
         button.setOnAction(event -> {
             List<Disk> diskSelectionList = diskTableView.getSelectionModel().getSelectedItems();
             for (Disk disk : diskSelectionList) getDelDisks().add(disk);
-            delDisks();
+            diskTableView.setItems(MainPaneController.delDisks(delDisks,disks));
         });
         AnchorPane.setTopAnchor(button,10.0);
-//        AnchorPane.setLeftAnchor(button,500.0);
         AnchorPane.setRightAnchor(button,100.0);
         AnchorPane.setBottomAnchor(button,100.0);
         return button;
@@ -209,26 +204,6 @@ public class MainPane extends BorderPane {
         diskTableView.getColumns().add(algSelectionCol);
     }
 
-    private static void addDisk(){
-        Disk disk = new Disk(disks.size());
-        disks.add(disk);
-        diskTableView.setItems(disks);
-    }
-    private static void delDisks(){
-        for (Disk disk : delDisks) System.out.println(disk.getGroupNumber());
-        for (Disk disk : delDisks){
-            int delPos = Integer.parseInt(disk.getGroupNumber());
-            disks.remove(disk);
-            for (int i = delPos;i < disks.size();i ++){
-                disks.get(i).setGroupNumber(String.valueOf(i));
-            }
-        }
-        delDisks.clear();
-        diskTableView.setItems(disks);
-    }
-
-
-
     private static void setCells(TableColumn<Disk,Boolean> tableColumn){
         tableColumn.setCellFactory(param -> {
             CheckBoxTableCell<Disk,Boolean> cell = new CheckBoxTableCell<>();
@@ -238,6 +213,6 @@ public class MainPane extends BorderPane {
     }
 
     public static List<Disk> getDelDisks() { return delDisks; }
-    public static void setDelDisks(List<Disk> delDisks) { MainPane.delDisks = delDisks; }
+    public static ObservableList<Disk> getDisks() { return disks; }
+    public static TableView<Disk> getDiskTableView() { return diskTableView; }
 }
-
